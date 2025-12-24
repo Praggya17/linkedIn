@@ -1,13 +1,13 @@
-package com.linkdin.linkdin;
+package com.linkedIn.linkedIn;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LinkdinApplication {
+public class LinkedInApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LinkdinApplication.class, args);
+		SpringApplication.run(LinkedInApplication.class, args);
 	}
 
 }
