@@ -24,7 +24,7 @@ public class AuthenticationService {
     private final Encoder encoder;
     private final JsonWebToken jsonWebToken;
     private final EmailService emailService;
-    private final int durationInMinutes = 1;
+    private final int durationInMinutes = 5;
 
     public AuthenticationService(AuthenticationUserRepository authenticationUserRepository,
                                  Encoder encoder, JsonWebToken jsonWebToken, EmailService emailService) {

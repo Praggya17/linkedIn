@@ -61,12 +61,33 @@ public class AuthenticationFilter extends HttpFilter {
 
             try{
                 logger.info("Checking authorization for secured endpoint: {}", path);
-                String AuthorisationHeader = request.getHeader("Authorization");
-                String token = AuthorisationHeader.substring(7);
+                String authorizationHeader = request.getHeader("Authorization");
+
+                // Validate Authorization header exists and has Bearer token
+                if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+                    logger.warn("Missing Authorization header for secured endpoint: {}", path);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\": \"Unauthorized: Authorization header is missing\"}");
+                    return;
+                }
+
+                if (!authorizationHeader.startsWith("Bearer ")) {
+                    logger.warn("Invalid Authorization header format for secured endpoint: {}", path);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\": \"Unauthorized: Invalid authorization format. Expected 'Bearer <token>'\"}");
+                    return;
+                }
+
+                String token = authorizationHeader.substring(7);
 
                 if(jsonWebToken.isTokenExpired(token)){
                     logger.warn("Token expired for path: {}", path);
-                    throw new ServletException("Token is invalid or expired");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\": \"Unauthorized: Token is invalid or expired\"}");
+                    return;
                 }
                 String email = jsonWebToken.extractEmail(token);
                 logger.info("Token validated for user: {}", email);
@@ -80,7 +101,7 @@ public class AuthenticationFilter extends HttpFilter {
                 logger.error("Authorization error: {}", e.getMessage(), e);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
-                response.getWriter().write("{\"message\": \"Unauthorized: Valid token is missing " + "\"}");
+                response.getWriter().write("{\"message\": \"Unauthorized: " + e.getMessage() + "\"}");
 
             }
     }
